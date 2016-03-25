@@ -1,0 +1,87 @@
+--- origsrc/rxvt-2.7.10/src/command.c	2003-03-26 00:01:23.000000000 -0600
++++ src/rxvt-2.7.10/src/command.c	2016-03-25 16:20:22.979394700 -0500
+@@ -3019,7 +3019,7 @@ rxvt_main_loop(rxvt_t *r)
+ 
+     h->cmdbuf_ptr = h->cmdbuf_endp = h->cmdbuf_base;
+ 
+-#if defined(__CYGWIN32__)
++#if defined(__CYGWIN__)
+     /* once we know the shell is running, send the screen size.  Again! */
+     (void)rxvt_cmd_getc(r);	/* wait for something */
+     h->cmdbuf_ptr--;		/* unget it - reprocess it below */
+--- origsrc/rxvt-2.7.10/src/init.h	2001-07-27 01:34:52.000000000 -0500
++++ src/rxvt-2.7.10/src/init.h	2016-03-25 16:20:30.815889800 -0500
+@@ -14,7 +14,7 @@
+ # endif
+ #endif				/* HAVE_XLOCALE */
+ 
+-#if defined(PTYS_ARE_PTMX) && !defined(__CYGWIN32__)
++#if defined(PTYS_ARE_PTMX) && !defined(__CYGWIN__)
+ # include <sys/resource.h>	/* for struct rlimit */
+ # define _NEW_TTY_CTRL		/* to get proper defines in <termios.h> */
+ #endif
+--- origsrc/rxvt-2.7.10/src/main.c	2002-10-23 20:52:33.000000000 -0500
++++ src/rxvt-2.7.10/src/main.c	2016-03-25 16:20:44.323105000 -0500
+@@ -263,7 +263,7 @@ rxvt_realloc(void *ptr, size_t size)
+ void
+ rxvt_privileges(rxvt_t *r, int mode)
+ {
+-#if ! defined(__CYGWIN32__)
++#if ! defined(__CYGWIN__)
+ # if !defined(HAVE_SETEUID) && defined(HAVE_SETREUID)
+ /* setreuid() is the poor man's setuid(), seteuid() */
+ #  define seteuid(a)	setreuid(-1, (a))
+--- origsrc/rxvt-2.7.10/src/ptytty.c	2002-09-19 02:40:39.000000000 -0500
++++ src/rxvt-2.7.10/src/ptytty.c	2016-03-25 16:21:53.687413200 -0500
+@@ -46,9 +46,10 @@
+ #ifdef HAVE_SYS_IOCTL_H
+ # include <sys/ioctl.h>
+ #endif
+-#if defined(PTYS_ARE_PTMX) && !defined(__CYGWIN32__)
++#if defined(PTYS_ARE_PTMX) && !defined(__CYGWIN__)
+ # include <sys/stropts.h>      /* for I_PUSH */
+ #endif
++#include <pty.h>
+ 
+ 
+ #ifdef DEBUG_TTY
+--- origsrc/rxvt-2.7.10/src/rxvt.h	2003-03-06 19:17:18.000000000 -0600
++++ src/rxvt-2.7.10/src/rxvt.h	2016-03-25 16:20:58.185865400 -0500
+@@ -70,7 +70,7 @@ typedef struct {
+ #  define NO_SETOWNER_TTYDEV
+ # endif
+ #endif
+-#if defined(__CYGWIN32__) || defined(PTYS_ARE_OPENPTY)
++#if defined(__CYGWIN__) || defined(PTYS_ARE_OPENPTY)
+ # define NO_SETOWNER_TTYDEV
+ #endif
+ 
+@@ -1000,7 +1000,7 @@ struct rxvt_hidden {
+     Time            selection_request_time;
+     pid_t           cmd_pid;	/* process id of child */
+     gid_t           ttygid;
+-#if (defined(HAVE_SETEUID) || defined(HAVE_SETREUID)) && !defined(__CYGWIN32__)
++#if (defined(HAVE_SETEUID) || defined(HAVE_SETREUID)) && !defined(__CYGWIN__)
+     uid_t           euid;
+     gid_t           egid;
+ #endif
+@@ -1167,7 +1167,7 @@ struct rxvt_hidden {
+ # define rxvt_set_window_color(r, idx, color)	(0)
+ #endif
+ 
+-#ifdef __CYGWIN32__
++#ifdef __CYGWIN__
+ # define rxvt_privileged_ttydev(r, action)	(0)
+ #endif
+ 
+--- origsrc/rxvt-2.7.10/src/screen.c	2003-03-23 10:56:06.000000000 -0600
++++ src/rxvt-2.7.10/src/screen.c	2016-03-25 16:21:04.022106500 -0500
+@@ -2805,7 +2805,7 @@ rxvt_selection_property(rxvt_t *r, Windo
+ 	    XFree(s);
+ 	if (a != Success)
+ 	    return;
+-#ifndef __CYGWIN32__
++#ifndef __CYGWIN__
+ 	if (atype == r->h->xa[XA_INCR]) {	/* start an INCR transfer */
+ 	    D_SELECT((stderr, "rxvt_selection_property: INCR: starting transfer"));
+ 	    XDeleteProperty(r->Xdisplay, win, prop);

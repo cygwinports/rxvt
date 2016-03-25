@@ -1,0 +1,37 @@
+NAME="rxvt"
+VERSION=2.7.10
+RELEASE=1
+CATEGORY="X11"
+SUMMARY="Lightweight VT102 terminal emulator"
+DESCRIPTION="rxvt is a colour vt102 terminal emulator intended as an xterm(1)
+replacement for users who do not require features such as Tektronix 4014
+emulation and toolkit-style configurability. The rxvt terminal is light on
+system resources and otherwise packed with features."
+HOMEPAGE="http://rxvt.sourceforge.net/"
+SRC_URI="mirror://sourceforge/rxvt/rxvt-${VERSION}.tar.gz"
+PATCH_URI="
+	2.7.10-cygwin64.patch
+	2.7.10-no-w11.patch
+"
+
+src_compile() {
+	gnuconfigize ${S}/autoconf
+	cd ${B}
+	cygconf --enable-everything \
+		--enable-xgetdefault \
+		--enable-256-color \
+		--with-term=rxvt \
+		--x-includes=/usr/include --x-libraries=/usr/lib \
+		rxvt_cv_path_utmp=/var/run/utmp rxvt_cv_struct_utmpx=no \
+		rxvt_cv_path_wtmp=/var/log/wtmp rxvt_cv_struct_wtmpx=no \
+		rxvt_cv_path_lastlog=/var/log/lastlog rxvt_cv_struct_lastlogx=no
+	cygmake
+}
+
+src_install() {
+	cd ${B}
+	cyginstall
+
+	make_desktop_entry rxvt "RXVT" utilities-terminal "System;TerminalEmulator" "VT102 emulator"
+	make_desktop_entry rclock "RClock" clock "Utility" "Clock and appointment reminder"
+}
