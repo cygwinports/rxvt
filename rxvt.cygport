@@ -10,8 +10,22 @@ system resources and otherwise packed with features."
 HOMEPAGE="http://rxvt.sourceforge.net/"
 SRC_URI="mirror://sourceforge/rxvt/rxvt-${VERSION}.tar.gz"
 PATCH_URI="
-	2.7.10-cygwin64.patch
-	2.7.10-no-w11.patch
+	debian/patches/rclock-precision.patch
+	debian/patches/var-mail-spool.patch
+	debian/patches/java-selection-paste-341200.patch
+	debian/patches/buffer-overflow-108384.patch
+	debian/patches/multi-byte-font-width-72371.patch
+	debian/patches/static-kstate-declarations-288459.patch
+	debian/patches/no-unspecified-display-target-469296.patch
+	debian/patches/control-shift-prior-next-226386.patch
+	debian/patches/elvisnox-cursor-invisible-70515.patch
+	debian/patches/lintian-doc-fixes.patch
+	debian/patches/cutchars-docs-169415.patch
+	debian/patches/screen-nlines-assertion.patch
+	debian/patches/rxvt-tbl.patch
+	debian/patches/rclock-segfault-empty-env-716576.patch
+	debian/patches/sighup-exits-347344.patch
+	2.7.10-cygwin-no-w11.patch
 "
 
 src_compile() {

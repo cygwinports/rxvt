@@ -1,0 +1,290 @@
+Debian Bug #72371
+ different width multi-byte font support
+
+If the width of the multi-byte font is not twice as much as the
+one of the single-byte font, rxvt can't display multi-byte
+characters correctly.
+
+Original issue posted and patch provided by Shugo Maeda
+
+Applied in Debian package version 2.6.3-4
+
+Updated for upstream version 2.7.10
+--- a/src/graphics.c
++++ b/src/graphics.c
+@@ -160,17 +160,17 @@
+ 	x -= (XTextWidth(r->TermWin.font, data->text, data->coords[3]) >> 1);
+ 
+     if ((align & VERTICAL_ALIGNMENT) == TOP_TEXT)
+-	y += r->TermWin.font->ascent;
++	y += r->TermWin.fascent;
+     else if ((align & VERTICAL_ALIGNMENT) == BOTTOM_TEXT)
+-	y -= r->TermWin.font->descent;
++	y -= r->TermWin.fdescent;
+ 
+     if ((align & VERTICAL_ALIGNMENT) == VCENTER_TEXT)
+-	y -= r->TermWin.font->descent
+-	     + ((r->TermWin.font->ascent + r->TermWin.font->descent) >> 1);
++	y -= r->TermWin.fdescent
++	     + ((r->TermWin.fascent + r->TermWin.fdescent) >> 1);
+     if ((align & VERTICAL_ALIGNMENT) == VCAPS_CENTER_TEXT)
+-	y += (r->TermWin.font->ascent >> 1);
++	y += (r->TermWin.fascent >> 1);
+ 
+-    XPMClearArea(r->Xdisplay, grwin->win, x, y - r->TermWin.font->ascent,
++    XPMClearArea(r->Xdisplay, grwin->win, x, y - r->TermWin.fascent,
+ 		 Width2Pixel(data->coords[3]), Height2Pixel(1), 0);
+     XDrawString(r->Xdisplay, grwin->win, r->TermWin.gc, x, y,
+ 		data->text, data->coords[3]);
+--- a/src/main.c
++++ b/src/main.c
+@@ -643,6 +643,9 @@
+     recheckfonts = !(fw == r->TermWin.fwidth && fh == r->TermWin.fheight);
+     r->TermWin.fwidth = fw;
+     r->TermWin.fheight = fh;
++    r->TermWin.fascent = r->TermWin.font->ascent;
++    r->TermWin.fdescent = r->TermWin.font->descent;
++    r->TermWin.fontdiff = 0;
+ 
+ /* check that size of boldFont is okay */
+ #ifndef NO_BOLDFONT
+@@ -714,9 +717,16 @@
+     if (recheckfonts)
+ 	if (r->TermWin.mfont != NULL) {
+ 	    fw = rxvt_get_fontwidest(r->TermWin.mfont);
+-	    fh = r->TermWin.mfont->ascent + r->TermWin.mfont->descent;
+-	    if (fw > (r->TermWin.fwidth * 2) || fh > r->TermWin.fheight)
+-		r->TermWin.mfont = NULL;
++	    if (r->TermWin.mfont->ascent > r->TermWin.fascent) {
++		r->TermWin.fascent = r->TermWin.mfont->ascent;
++		r->TermWin.fontdiff = 1;
++	    }
++	    if (r->TermWin.mfont->descent > r->TermWin.fdescent) {
++		r->TermWin.fdescent = r->TermWin.mfont->descent;
++		r->TermWin.fontdiff = 1;
++	    }
++	    if (r->TermWin.fontdiff)
++		r->TermWin.fheight = r->TermWin.fascent + r->TermWin.fdescent;
+ 	    if (fw == (r->TermWin.fwidth * 2) /* && fh==r->TermWin.fheight */ )
+ 		r->TermWin.propfont &= ~PROPFONT_MULTI;
+ 	    else
+--- a/src/rxvtlib.h.in
++++ b/src/rxvtlib.h.in
+@@ -100,7 +100,10 @@
+     u_int16_t       height;	/* window height                   [pixels] */
+     u_int16_t       fwidth;	/* font width                      [pixels] */
+     u_int16_t       fheight;	/* font height                     [pixels] */
++    u_int16_t       fascent;	/* font ascent                     [pixels] */
++    u_int16_t       fdescent;	/* font descent                    [pixels] */
+     u_int16_t       propfont;	/* font proportional flags                  */
++    u_int16_t       fontdiff;	/* font size different                      */
+     u_int16_t       ncol;	/* window columns              [characters] */
+     u_int16_t       nrow;	/* window rows                 [characters] */
+     u_int16_t       focus;	/* window has focus                         */
+--- a/src/screen.c
++++ b/src/screen.c
+@@ -1886,7 +1886,7 @@
+  */
+ 
+ #define DRAW_STRING(Func, x, y, str, len)				\
+-    Func(r->Xdisplay, drawBuffer, r->TermWin.gc, (x), (y), (str), (len))
++    Func(r, r->Xdisplay, drawBuffer, r->TermWin.gc, (x), (y), (str), (len))
+ 
+ #if defined (NO_BRIGHTCOLOR) || defined (VERYBOLD)
+ # define MONO_BOLD(x)		((x) & (RS_Bold|RS_Blink))
+@@ -1906,6 +1906,109 @@
+ #define IS_FONT_CHAR(X, Y)						\
+     ((Y) >= (X)->min_char_or_byte2 && (Y) <= (X)->max_char_or_byte2)
+ 
++#ifdef MULTICHAR_SET
++static int
++mfont_draw_string16(rxvt_t *r,
++		    Display *display,
++		    Drawable d,
++		    GC gc,
++		    int x,
++		    int y,
++		    XChar2b *str,
++		    int len)
++{
++    while (len > 0) {
++	XDrawString16(display, d, gc, x, y, str, 1);
++	if (str->byte1 == '\0') {
++	    x += r->TermWin.fwidth;
++	}
++	else {
++	    x += r->TermWin.fwidth * 2;
++	}
++	str++;
++	len--;
++    }
++    return 0;
++}
++
++static int
++mfont_draw_image_string16(rxvt_t *r,
++			  Display *display,
++			  Drawable d,
++			  GC gc,
++			  int x,
++			  int y,
++			  XChar2b *str,
++			  int len)
++{
++    while (len > 0) {
++	XDrawImageString16(display, d, gc, x, y, str, 1);
++	if (str->byte1 == '\0') {
++	    x += r->TermWin.fwidth;
++	}
++	else {
++	    x += r->TermWin.fwidth * 2;
++	}
++	str++;
++	len--;
++    }
++    return 0;
++}
++
++static int
++draw_string16(rxvt_t *r,
++	      Display *display,
++	      Drawable d,
++	      GC gc,
++	      int x,
++	      int y,
++	      XChar2b *str,
++	      int len)
++{
++    XDrawString16(display, d, gc, x, y, str, len);
++}
++
++static int
++draw_image_string16(rxvt_t *r,
++		    Display *display,
++		    Drawable d,
++		    GC gc,
++		    int x,
++		    int y,
++		    XChar2b *str,
++		    int len)
++{
++    XDrawImageString16(display, d, gc, x, y, str, len);
++}
++
++#endif
++
++static int
++draw_string(rxvt_t *r,
++	    Display *display,
++	    Drawable d,
++	    GC gc,
++	    int x,
++	    int y,
++	    char *str,
++	    int len)
++{
++    XDrawString(display, d, gc, x, y, str, len);
++}
++
++static int
++draw_image_string(rxvt_t *r,
++		  Display *display,
++		  Drawable d,
++		  GC gc,
++		  int x,
++		  int y,
++		  char *str,
++		  int len)
++{
++    XDrawImageString(display, d, gc, x, y, str, len);
++}
++
+ /* EXTPROTO */
+ void
+ rxvt_scr_refresh(rxvt_t *r, unsigned char refresh_type)
+@@ -1940,8 +2043,8 @@
+     text_t         *dtp, *stp;	/* drawn-text-pointer, screen-text-pointer   */
+     char           *buffer;	/* local copy of r->h->buffer                */
+     struct rxvt_hidden *h = r->h;
+-    int             (*draw_string) () = XDrawString;
+-    int             (*draw_image_string) () = XDrawImageString;
++    int             (*draw_string_func) () = draw_string;
++    int             (*draw_image_string_func) () = draw_image_string;
+ 
+     if (refresh_type == NO_REFRESH || !r->TermWin.mapped)
+ 	return;
+@@ -2210,7 +2313,7 @@
+  * E2: OK, now the real pass
+  */
+ 	ypixelc = (int)Row2Pixel(row);
+-	ypixel = ypixelc + r->TermWin.font->ascent;
++	ypixel = ypixelc + r->TermWin.fascent;
+ 
+ 	for (col = 0; col < r->TermWin.ncol; col++) {
+ 	    unsigned char   fontdiff,/* current font size != base font size */
+@@ -2237,7 +2340,7 @@
+ 	    }
+ 	    /* redraw one or more characters */
+ 
+-	    fontdiff = 0;
++	    fontdiff = r->TermWin.fontdiff;
+ 	    len = 0;
+ 	    buffer[len++] = dtp[col] = stp[col];
+ 	    drp[col] = rend;
+@@ -2259,9 +2362,14 @@
+ 		    wbyte = 1;
+ 		    XSetFont(r->Xdisplay, r->TermWin.gc,
+ 			     r->TermWin.mfont->fid);
+-		    fontdiff = (r->TermWin.propfont & PROPFONT_MULTI);
+-		    draw_string = XDrawString16;
+-		    draw_image_string = XDrawImageString16;
++		    fontdiff |= (r->TermWin.propfont & PROPFONT_MULTI) ? 1 : 0;
++		    if (r->TermWin.propfont & PROPFONT_MULTI) {
++			draw_string_func = mfont_draw_string16;
++			draw_image_string_func = mfont_draw_image_string16;
++		    } else {
++			draw_string_func = draw_string16;
++			draw_image_string_func = draw_image_string16;
++		    }
+ 		}
+ 		if (r->TermWin.mfont == NULL) {
+ 		    buffer[0] = buffer[1] = ' ';
+@@ -2305,8 +2413,8 @@
+ 		if (wbyte) {
+ 		    wbyte = 0;
+ 		    XSetFont(r->Xdisplay, r->TermWin.gc, r->TermWin.font->fid);
+-		    draw_string = XDrawString;
+-		    draw_image_string = XDrawImageString;
++		    draw_string_func = draw_string;
++		    draw_image_string_func = draw_image_string;
+ 		}
+ #else
+ 	    {
+@@ -2415,11 +2523,12 @@
+ 		&& r->TermWin.boldFont != NULL) {
+ 		bfont = 1;
+ 		XSetFont(r->Xdisplay, r->TermWin.gc, r->TermWin.boldFont->fid);
+-		fontdiff = (r->TermWin.propfont & PROPFONT_BOLD);
++		fontdiff |= (r->TermWin.propfont & PROPFONT_BOLD) ? 1 : 0;
+ 		rend &= ~RS_Bold;	/* we've taken care of it */
+ 	    } else if (bfont) {
+ 		bfont = 0;
+-		XSetFont(r->Xdisplay, r->TermWin.gc, r->TermWin.font->fid);
++		if (!wbyte)
++		    XSetFont(r->Xdisplay, r->TermWin.gc, r->TermWin.font->fid);
+ 	    }
+ #endif
+ /*
+@@ -2444,9 +2553,10 @@
+ 					      - r->TermWin.lineSpace));
+ 		gcvalue.foreground = gctmp;
+ 		XChangeGC(r->Xdisplay, r->TermWin.gc, GCForeground, &gcvalue);
+-		DRAW_STRING(draw_string, xpixel, ypixel, buffer, wlen);
++		DRAW_STRING(draw_string_func, xpixel, ypixel, buffer, wlen);
+ 	    } else
+-		DRAW_STRING(draw_image_string, xpixel, ypixel, buffer, wlen);
++		DRAW_STRING(draw_image_string_func, xpixel, ypixel,
++			    buffer, wlen);
+ 
+ #ifndef NO_BOLDOVERSTRIKE
+ # ifdef NO_BOLDOVERSTRIKE_MULTI

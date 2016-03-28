@@ -1,0 +1,14 @@
+Fix off-by-one error in assertion.
+
+Originally applied in rxvt-beta by hesso@pool.math.tu-berlin.de
+--- a/src/screen.c
++++ b/src/screen.c
+@@ -1799,7 +1799,7 @@
+ 
+     D_SCREEN((stderr, "rxvt_scr_page(%s, %d) view_start:%d", ((direction == UP) ? "UP" : "DN"), nlines, r->TermWin.view_start));
+ #ifdef DEBUG_STRICT
+-    assert((nlines >= 1) && (nlines <= r->TermWin.nrow));
++    assert((nlines >= 0) && (nlines <= r->TermWin.nrow));
+ #endif
+     oldviewstart = r->TermWin.view_start;
+     if (direction == UP) {

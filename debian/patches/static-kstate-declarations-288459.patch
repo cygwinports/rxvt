@@ -1,0 +1,24 @@
+Debian Bug #288459
+FTBFS (amd64/gcc-4.0): static declaration of 'kstate_add_xlat' follows
+                       non-static declaration
+
+Replace kstate_* static functions with non-static declarations in src/grkelot.c
+
+Original issue posted and patch provided by Andreas Jochens
+
+Applied in rxvt_2.6.4-7
+--- a/src/grkelot.c
++++ b/src/grkelot.c
+@@ -159,9 +159,9 @@
+ 
+ #define NUM_XLAT_TYPES	(sizeof(xlat_type) / sizeof(xlat_type[0]))
+ 
+-static void     kstate_add_xlat(char *str);
+-static void     kstate_add_switcher(char *str);
+-static void     kstate_set_life(char *str);
++void     kstate_add_xlat(char *str);
++void     kstate_add_switcher(char *str);
++void     kstate_set_life(char *str);
+ 
+ /* --- Functions ------------- */
+ /* INTPROTO */

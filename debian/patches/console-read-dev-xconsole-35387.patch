@@ -1,0 +1,17 @@
+Debian Bug #35387
+ -C option should read from /dev/xconsole, not /dev/console
+
+Changed CONSOLE macro definition to be /dev/xconsole, from /dev/console
+
+This patch originally applied in rxvt_2.6.3-9
+--- a/src/init.h
++++ b/src/init.h
+@@ -150,7 +150,7 @@
+ # define ONLCR		0		/* QNX, at least */
+ #endif
+ 
+-#define CONSOLE		"/dev/console"	/* console device */
++#define CONSOLE		"/dev/xconsole"	/* console device */
+ 
+ #include "init.intpro"	/* PROTOS for internal routines */
+ #endif	/* _INIT_H_ */

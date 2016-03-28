@@ -1,0 +1,69 @@
+Debian Bug #341200
+selection cannot be pasted into Java applications on amd64
+
+Atom is a 64 bit type in the amd64 architecture but, when passing
+XA_ATOM arguments to XChangeProperty, one must use a "format" argument
+of 32 but pass an array of 64 bit Atoms to the function.
+
+Original issue posted and patch provided by Martin Dorey
+
+Applied in rxvt_2.6.4-10
+--- a/src/screen.c
++++ b/src/screen.c
+@@ -28,8 +28,6 @@
+ #include "rxvt.h"		/* NECESSARY */
+ #include "screen.intpro"	/* PROTOS for internal routines */
+ 
+-#include <X11/Xmd.h>		/* get the typedef for CARD32 */
+-
+ /* ------------------------------------------------------------------------- */
+ #ifdef MULTICHAR_SET
+ 
+@@ -3498,14 +3496,6 @@
+ 
+ /* ------------------------------------------------------------------------- */
+ /*
+- * On some systems, the Atom typedef is 64 bits wide.  We need to have a type
+- * that is exactly 32 bits wide, because a format of 64 is not allowed by
+- * the X11 protocol.
+- */
+-typedef CARD32  Atom32;
+-
+-/* ------------------------------------------------------------------------- */
+-/*
+  * Respond to a request for our current selection
+  * EXT: SelectionRequest
+  */
+@@ -3515,9 +3505,9 @@
+ {
+     XSelectionEvent ev;
+ #ifdef USE_XIM
+-    Atom32          target_list[4];
++    Atom            target_list[4];
+ #else
+-    Atom32          target_list[3];
++    Atom            target_list[3];
+ #endif
+     Atom            target;
+     XTextProperty   ct;
+@@ -3533,15 +3523,14 @@
+     ev.time = rq->time;
+ 
+     if (rq->target == r->h->xa[XA_TARGETS]) {
+-	target_list[0] = (Atom32) r->h->xa[XA_TARGETS];
+-	target_list[1] = (Atom32) XA_STRING;
+-	target_list[2] = (Atom32) r->h->xa[XA_TEXT];
++	target_list[0] = (Atom) r->h->xa[XA_TARGETS];
++	target_list[1] = (Atom) XA_STRING;
++	target_list[2] = (Atom) r->h->xa[XA_TEXT];
+ #ifdef USE_XIM
+-	target_list[3] = (Atom32) r->h->xa[XA_COMPOUND_TEXT];
++	target_list[3] = (Atom) r->h->xa[XA_COMPOUND_TEXT];
+ #endif
+ 	XChangeProperty(r->Xdisplay, rq->requestor, rq->property, XA_ATOM,
+-			(8 * sizeof(target_list[0])), PropModeReplace,
+-			(unsigned char *)target_list,
++			32, PropModeReplace, (unsigned char *)target_list,
+ 			(sizeof(target_list) / sizeof(target_list[0])));
+ 	ev.property = rq->property;
+     } else if (rq->target == r->h->xa[XA_MULTIPLE]) {

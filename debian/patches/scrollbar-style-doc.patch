@@ -1,0 +1,15 @@
+Add a note in the manpage regarding the missing manpage style
+support in the rxvt-xterm binary.
+
+Originally applied in rxvt-beta by hesso@pool.math.tu-berlin.de
+--- a/doc/rxvt.tbl
++++ b/doc/rxvt.tbl
+@@ -350,7 +350,7 @@
+ is xterm style with 2\&.20 old word selection, or anything else which
+ gives xterm style selection\&.
+ .IP "\fBscrollstyle:\fP \fImode\fP" 
+-Set scrollbar style to \fBrxvt\fP, \fBnext\fP or \fBxterm\fP
++Set scrollbar style to \fBrxvt\fP, \fBnext\fP or \fBxterm\fP (only supported by the \fBrxvt-xpm\fP binary)
+ .IP "\fBtitle:\fP \fIstring\fP" 
+ Set window title string, the default title is the command-line
+ specified after the \fB-e\fP option, if any, otherwise the application

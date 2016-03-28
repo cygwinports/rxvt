@@ -1,0 +1,12 @@
+configured rclock to use "/var/spool/mail/" for the mail spool
+--- a/rclock/feature.h
++++ b/rclock/feature.h
+@@ -58,7 +58,7 @@
+ #define MAIL
+ /* #define MAIL_BELL */
+ /* #define MAIL_SPAWN	"xmh\ -font\ 7x14\&" */
+-/* #define MAIL_SPOOL	"/var/spool/mail/" */
++#define MAIL_SPOOL	"/var/spool/mail/"
+ 
+ /*----------------------------------------------------------------------*
+  * #define CLOCKUPDATE	30

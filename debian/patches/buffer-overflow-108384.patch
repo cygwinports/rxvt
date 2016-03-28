@@ -1,0 +1,23 @@
+Debian bug #108384
+RXVT Vulnerability
+
+Originally Posted by Samuel "Zorgon" Dralet <samuel.dralet@mastersecurity.fr>
+
+Versions 2.6.2 contain a buffer overflow vulnerability. As rxvt is installed
+setgid utmp on Debian 2.2, an attacker might be able to successfully exploit
+this vulnerability and gain special privileges on the local system.
+
+Resolved originally in version 2.6.3-12
+
+This vulnerability is still present in upstream 2.7.10.
+--- a/src/command.c
++++ b/src/command.c
+@@ -3098,7 +3098,7 @@
+     unsigned char   buf[256];
+ 
+     va_start(arg_ptr, fmt);
+-    vsprintf((char *)buf, fmt, arg_ptr);
++    vsnprintf((char *)buf, sizeof(buf), fmt, arg_ptr);
+     va_end(arg_ptr);
+     rxvt_tt_write(r, buf, (unsigned int)STRLEN(buf));
+ }

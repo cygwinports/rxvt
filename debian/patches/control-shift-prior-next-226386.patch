@@ -1,0 +1,37 @@
+Debian Bug #226386
+Control+Shift+Prior/Next doesn't work
+
+Issue and patch posted by Alexis S. L. Carvalho
+
+Applied in rxvt_2.6.4-9
+--- a/src/command.h
++++ b/src/command.h
+@@ -44,20 +44,27 @@
+ 
+ #ifdef SCROLL_ON_SHIFT
+ # define SCROLL_SHIFTKEY (shft)
++# define NOSCROLL_SHIFTKEY 0
+ #else
+ # define SCROLL_SHIFTKEY 0
++# define NOSCROLL_SHIFTKEY (shft)
+ #endif
+ #ifdef SCROLL_ON_CTRL
+ # define SCROLL_CTRLKEY  (ctrl)
++# define NOSCROLL_CTRLKEY 0
+ #else
+ # define SCROLL_CTRLKEY 0
++# define NOSCROLL_CTRLKEY (ctrl)
+ #endif
+ #ifdef SCROLL_ON_META
+ # define SCROLL_METAKEY  (meta)
++# define NOSCROLL_METAKEY 0
+ #else
+ # define SCROLL_METAKEY 0
++# define NOSCROLL_METAKEY (meta)
+ #endif
+-#define IS_SCROLL_MOD  (SCROLL_SHIFTKEY || SCROLL_CTRLKEY || SCROLL_METAKEY)
++#define IS_SCROLL_MOD  ((SCROLL_SHIFTKEY || SCROLL_CTRLKEY || SCROLL_METAKEY) \
++              && (!NOSCROLL_SHIFTKEY && !NOSCROLL_CTRLKEY && !NOSCROLL_METAKEY))
+ 
+ /*
+  * ESC-Z processing:

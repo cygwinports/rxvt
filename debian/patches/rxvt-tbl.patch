@@ -1,0 +1,192 @@
+rxvt.tbl syntax fixes
+
+Applied originally in rxvt-beta by root@hejre.minidns.net
+--- a/doc/rxvt.tbl
++++ b/doc/rxvt.tbl
+@@ -1,3 +1,4 @@
++'\" t
+ .TH "RXVT" "1" "26 MARCH 2003" "X Version 11" "X Tools" 
+ .SH "NAME" 
+ rxvt_(ouR_XVT) \- a VT102 emulator for the X window system
+@@ -17,20 +18,20 @@
+ .PP 
+ .SH "OPTIONS" 
+ .PP 
+-The \fBrxvt\fP options (mostly a subset of \fIxterm\fP\'s) are listed below\&.
++The \fBrxvt\fP options (mostly a subset of \fIxterm\fP's) are listed below\&.
+ In keeping with the smaller-is-better philosophy, options may be eliminated
+ or default values chosen at compile-time, so options and defaults listed
+ may not accurately reflect the version installed on your system\&.  
+-`rxvt \-h\' gives a list of major compile-time options on the \fIOptions\fP line\&.
++\(lqrxvt \-h\(rq gives a list of major compile-time options on the \fIOptions\fP line\&.
+ Option descriptions may be prefixed with which compile option each is
+-dependent upon\&.  e\&.g\&. `Compile \fIXIM\fP:\' requires \fIXIM\fP on the \fIOptions\fP
+-line\&.  Note: `rxvt \-help\' gives a list of all command-line options compiled
++dependent upon\&.  e\&.g\&. \(lqCompile \fIXIM\fP:\(rq requires \fIXIM\fP on the \fIOptions\fP
++line\&.  Note: \(lqrxvt \-help\(rq gives a list of all command-line options compiled
+ into your version\&.
+ .PP 
+ Note that \fBrxvt\fP permits the resource name to be used as a long-option
+ (--/++ option) so the potential command-line options are far greater than
+ those listed\&.
+-For example: `rxvt \-\-loginShell \-\-color1 Orange\'\&.
++For example: \(lqrxvt \-\-loginShell \-\-color1 Orange\(rq\&.
+ .PP 
+ Also note that if you do not explicitly specify a font (\fB-fn\fP and \fB-fm\fP)
+ or a multichar encoding method (\fB-km\fP), rxvt will select a font for the
+@@ -56,7 +57,7 @@
+ Turn on/off jump scrolling;
+ resource \fBjumpScroll\fP\&.
+ .IP "\fB-ip\fP|\fB+ip\fP" 
+-Turn on/off inheriting parent window\'s pixmap\&.  Alternative form
++Turn on/off inheriting parent window's pixmap\&.  Alternative form
+ is \fB-tr\fP;
+ resource \fBinheritPixmap\fP\&.
+ .IP "\fB-bg\fP \fIcolour\fP" 
+@@ -69,7 +70,7 @@
+ Compile \fIXPM\fP: Specify XPM file for the background and also
+ optionally specify its scaling with a geometry string\&.  Note you
+ may need to add quotes to avoid special shell interpretation of
+-the `;\' in the command-line;
++the \(lq;\(rq in the command-line;
+ resource \fBbackgroundPixmap\fP\&.
+ .IP "\fB-cr\fP \fIcolour\fP" 
+ The cursor colour;
+@@ -107,7 +108,7 @@
+ .IP "\fB-name\fP \fIname\fP" 
+ Specify the application name under which resources
+ are to be obtained, rather than the default executable file name\&.
+-Name should not contain `\&.\' or `*\' characters\&.
++Name should not contain \(lq\&.\(rq or \(lq*\(rq characters\&.
+ Also sets the icon and title name\&.
+ .IP "\fB-ls\fP|\fB+ls\fP" 
+ Start as a login-shell/sub-shell;
+@@ -165,7 +166,10 @@
+ \fBTERM\fP environment variable\&. This terminal type must exist in the
+ \fItermcap(5)\fP database and should have \fIli#\fP and \fIco#\fP entries;
+ resource \fBtermName\fP\&.
+-.IP "\fB-e\fP \fIcommand [arguments]\fP" 
++.IP "\fB-im\fP \fImethod\fP"
++This option specifies the input method to use;
++resource \fBinputMethod\fP\&.
++.IP "\fB-e\fP \fIcommand [arguments]\fP"
+ Run the command with its command-line arguments in the \fBrxvt\fP
+ window; also sets the window title and icon name to be the basename
+ of the program being executed if neither \fI-title\fP (\fI-T\fP) nor
+@@ -198,11 +202,11 @@
+ resource \fImodifier\fP\&.
+ .IP "\fB-xrm\fP \fIresourcestring\fP" 
+ No effect on rxvt\&.  Simply passes through an argument to be made
+-available in the instance\'s argument list\&.  Appears in \fIWM_COMMAND\fP
++available in the instance's argument list\&.  Appears in \fIWM_COMMAND\fP
+ in some window managers\&.
+ .SH "RESOURCES (available also as long-options)" 
+ .PP 
+-Note: `rxvt \-\-help\' gives a list of all resources (long options) compiled
++Note: \(lqrxvt \-\-help\(rq gives a list of all resources (long options) compiled
+ into your version\&.
+ If compiled with internal Xresources support (i\&.e\&. \fBrxvt \-h\fP lists 
+ \fB\&.Xdefaults\fP) then \fBrxvt\fP accepts application defaults set in
+@@ -223,11 +227,11 @@
+ 80x24];
+ option \fB-geometry\fP\&.
+ .IP "\fBbackground:\fP \fIcolour\fP" 
+-Use the specified colour as the window\'s background colour [default
++Use the specified colour as the window's background colour [default
+ White];
+ option \fB-bg\fP\&.
+ .IP "\fBforeground:\fP \fIcolour\fP" 
+-Use the specified colour as the window\'s foreground colour [default
++Use the specified colour as the window's foreground colour [default
+ Black];
+ option \fB-fg\fP\&.
+ .IP "\fBcolor\fP\fIn\fP\fB:\fP \fIcolour\fP" 
+@@ -268,26 +272,26 @@
+ \fBFalse\fP: specify that smooth scrolling should be used;
+ option \fB+j\fP\&.
+ .IP "\fBinheritPixmap:\fP \fIboolean\fP" 
+-\fBTrue\fP: make the background inherit the parent windows\' pixmap,
++\fBTrue\fP: make the background inherit the parent windows' pixmap,
+ giving artificial transparency\&.
+-\fBFalse\fP: do not inherit the parent windows\' pixmap\&.
++\fBFalse\fP: do not inherit the parent windows' pixmap\&.
+ .IP "\fBscrollColor:\fP \fIcolour\fP" 
+ Use the specified colour for the scrollbar [default #B2B2B2]\&.
+ .IP "\fBtroughColor:\fP \fIcolour\fP" 
+-Use the specified colour for the scrollbar\'s trough area [default
++Use the specified colour for the scrollbar's trough area [default
+ #969696]\&.  Only relevant for normal (non XTerm/NeXT) scrollbar\&.
+ .IP "\fBbackgroundPixmap:\fP \fIfile[;geom]\fP" 
+-Use the specified XPM file (note the `\&.xpm\' extension is optional)
++Use the specified XPM file (note the \(lq\&.xpm\(rq extension is optional)
+ for the background and also optionally specify its scaling with a
+-geometry string \fBWxH+X+Y\fP, in which \fB"W" / "H"\fP specify the
+-horizontal/vertical scale (percent) and \fB"X" / "Y"\fP locate the
++geometry string \fBWxH+X+Y\fP, in which \fB\(lqW\(rq / \(lqH\(rq\fP specify the
++horizontal/vertical scale (percent) and \fB\(lqX\(rq / \(lqY\(rq\fP locate the
+ image centre (percent)\&.  A scale of 0 displays the image with tiling\&.
+ A scale of 1 displays the image without any scaling\&.  A scale of 2 to
+ 9 specifies an integer number of images in that direction\&.  No image
+ will be magnified beyond 10 times its original size\&.  The maximum
+ permitted scale is 1000\&.  [default 0x0+50+50]
+ .IP "\fBmenu:\fP \fIfile[;tag]\fP" 
+-Read in the specified menu file (note the `\&.menu\' extension is
++Read in the specified menu file (note the \(lq\&.menu\(rq extension is
+ optional) and also optionally specify a starting tag to find\&.  See
+ the reference documentation for details on the syntax for the menuBar\&.
+ .IP "\fBpath:\fP \fIpath\fP" 
+@@ -357,8 +361,8 @@
+ name;
+ option \fB-title\fP\&.
+ .IP "\fBiconName:\fP \fIstring\fP" 
+-Set the name used to label the window\'s icon or displayed in an icon
+-manager window, it also sets the window\'s title unless it is
++Set the name used to label the window's icon or displayed in an icon
++manager window, it also sets the window's title unless it is
+ explicitly set;
+ option \fB-n\fP\&.
+ .IP "\fBmapAlert:\fP \fIboolean\fP" 
+@@ -371,7 +375,7 @@
+ \fBFalse\fP: no visual bell [default];
+ option \fB+vb\fP\&.
+ .IP "\fBloginShell:\fP \fIboolean\fP" 
+-\fBTrue\fP: start as a login shell by prepending a `-\' to \fBargv[0]\fP
++\fBTrue\fP: start as a login shell by prepending a \(lq-\(rq to \fBargv[0]\fP
+ of the shell;
+ option \fB-ls\fP\&.
+ \fBFalse\fP: start as a normal sub-shell [default];
+@@ -585,7 +589,7 @@
+ as a number 0-15, as a convenient shorthand to reference the colour name of
+ color0-color15\&.
+ .PP 
+-Note that \fB-rv\fP (\fB"reverseVideo: True"\fP) simulates reverse video by
++Note that \fB-rv\fP (\fB\(lqreverseVideo: True\(rq\fP) simulates reverse video by
+ always swapping the foreground/background colours\&.  This is in contrast to
+ \fIxterm\fP(1) where the colours are only swapped if they have not otherwise been
+ specified\&.
+@@ -608,6 +612,16 @@
+ .IP "\fB/usr/lib/X11/rgb\&.txt\fP" 
+ Color names\&.
+ .PP 
++.SH "DEBIAN NOTES"
++.PP
++The standard Debian \fBrxvt\fP package provides two versions of the
++\fBrxvt\fP binary:
++.IP "\fBrxvt-xterm\fP"
++This version is compiled with no XPM support.  It has been configured to
++be a smaller, more efficient xterm substitute.
++.IP "\fBrxvt-xpm\fP"
++This version is compiled with XPM and menu support.
++.PP
+ .SH "SEE ALSO" 
+ .PP 
+ \fIxterm\fP(1), \fIsh\fP(1), \fIresize\fP(1), \fIX\fP(1), \fIpty\fP(4), \fItty\fP(4),
+@@ -622,7 +636,7 @@
+ .PP 
+ Cursor change support is not yet implemented\&.
+ .PP 
+-Click-and-drag doesn\'t work with X11 mouse report overriding\&.
++Click-and-drag doesn't work with X11 mouse report overriding\&.
+ .PP 
+ Graphics support is fairly crude\&.
+ .PP 

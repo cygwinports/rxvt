@@ -1,0 +1,13 @@
+Removed rxvtlib.h during clean to avoid errors when rebuilding with
+dpkg-buildpackage, which thinks that rxvtlib.h is a modified source.
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -113,7 +113,7 @@
+ alldoc:
+ 
+ clean:
+-	$(RMF) rxvt core a.out *.o *.lo *.bak *~ *.intpro *.extpro .libs/* librxvt.la tmpproto .protos *.tmp
++	$(RMF) rxvtlib.h rxvt core a.out *.o *.lo *.bak *~ *.intpro *.extpro .libs/* librxvt.la tmpproto .protos *.tmp
+ 
+ realclean: clean
+ 	$(RMF) tags librxvt.h

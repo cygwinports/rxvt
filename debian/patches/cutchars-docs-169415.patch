@@ -1,0 +1,20 @@
+Debian Bug #169415
+~ is in default cutchars
+
+Posted by James R. Van Zandt <jrv@vanzandt.mv.com>
+
+Original request was for behavior change for default cutchars to match docs,
+however I prefer to update the documentation to reflect the defaults and let
+users choose to override in Xresources or cmdline as appropriate to not break
+existing behavior.
+--- a/doc/rxvt.tbl
++++ b/doc/rxvt.tbl
+@@ -472,7 +472,7 @@
+ The characters used as delimiters for double-click word selection\&. 
+ The built-in default: 
+ .br 
+-\fBBACKSLASH `"\'&()*,;<=>?@[]{|}\fP
++\fB"&'()*,;<=>?@[\\]^`{|}~
+ .IP "\fBpreeditType:\fP \fIstyle\fP" 
+ \fBOverTheSpot\fP, \fBOffTheSpot\fP, \fBRoot\fP;
+ option \fB-pt\fP\&.

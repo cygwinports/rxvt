@@ -1,0 +1,25 @@
+Debian Bug #70515
+elvisnox cursor invisible in rxvt
+
+when I run elvisnox in a rxvt terminal, elvisnox changes to reverse video, but
+unfortunately, the cursor is hardly visible.
+
+If you #define CURSOR_COLOR_IS_RENDITION_COLOR in screen.c and
+recompile rxvt, the cursor color will change as appropriate.
+
+Correction suggested by Nicholas Riley, confirmed by upstream maint Geoff Wing
+
+Applied in rxvt_2.6.4-3
+--- a/src/feature.h
++++ b/src/feature.h
+@@ -370,6 +370,10 @@
+  */
+ /* #define LOCAL_X_IS_UNIX */
+ 
++/* Debian modification to change the cursor color to the foreground
++   color */
++#define CURSOR_COLOR_IS_RENDITION_COLOR
++
+ /*
+  * Have DISPLAY environment variable & "\E[7n" transmit display with IP number
+  */

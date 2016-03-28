@@ -1,0 +1,110 @@
+documentation problems identified with lintian
+
+Escaping minus signs scattered throughout rxvt and rclock manpage sources.
+Replacing spaces with underscores in NAME section of rxvt and rclock manpages.
+--- a/doc/rxvt.tbl
++++ b/doc/rxvt.tbl
+@@ -1,10 +1,10 @@
+ .TH "RXVT" "1" "26 MARCH 2003" "X Version 11" "X Tools" 
+ .SH "NAME" 
+-rxvt (ouR XVT) \- a VT102 emulator for the X window system
++rxvt_(ouR_XVT) \- a VT102 emulator for the X window system
+ .PP 
+ .SH "SYNOPSIS" 
+ .PP 
+-\fBrxvt\fP [options] [-e command [ args ]]
++\fBrxvt\fP [options] [\-e command [ args ]]
+ .PP 
+ .SH "DESCRIPTION" 
+ .PP 
+@@ -21,18 +21,18 @@
+ In keeping with the smaller-is-better philosophy, options may be eliminated
+ or default values chosen at compile-time, so options and defaults listed
+ may not accurately reflect the version installed on your system\&.  
+-`rxvt -h\' gives a list of major compile-time options on the \fIOptions\fP line\&.
++`rxvt \-h\' gives a list of major compile-time options on the \fIOptions\fP line\&.
+ Option descriptions may be prefixed with which compile option each is
+ dependent upon\&.  e\&.g\&. `Compile \fIXIM\fP:\' requires \fIXIM\fP on the \fIOptions\fP
+-line\&.  Note: `rxvt -help\' gives a list of all command-line options compiled
++line\&.  Note: `rxvt \-help\' gives a list of all command-line options compiled
+ into your version\&.
+ .PP 
+ Note that \fBrxvt\fP permits the resource name to be used as a long-option
+ (--/++ option) so the potential command-line options are far greater than
+ those listed\&.
+-For example: `rxvt --loginShell --color1 Orange\'\&.
++For example: `rxvt \-\-loginShell \-\-color1 Orange\'\&.
+ .PP 
+-Also note that if you do not explictly specify a font (\fB-fn\fP and \fB-fm\fP)
++Also note that if you do not explicitly specify a font (\fB-fn\fP and \fB-fm\fP)
+ or a multichar encoding method (\fB-km\fP), rxvt will select a font for the
+ preferable encoding according to your locale\&.  Supported encodings are:
+ \fBISO-8859-\fPn (n=\fB1\fP\&.\&.\&.\fB15\fP), \fBKOI8-R\fP, \fBKOI8-U\fP, \fBEUC-JP\fP,
+@@ -202,9 +202,9 @@
+ in some window managers\&.
+ .SH "RESOURCES (available also as long-options)" 
+ .PP 
+-Note: `rxvt --help\' gives a list of all resources (long options) compiled
++Note: `rxvt \-\-help\' gives a list of all resources (long options) compiled
+ into your version\&.
+-If compiled with internal Xresources support (i\&.e\&. \fBrxvt -h\fP lists 
++If compiled with internal Xresources support (i\&.e\&. \fBrxvt \-h\fP lists 
+ \fB\&.Xdefaults\fP) then \fBrxvt\fP accepts application defaults set in
+ XAPPLOADDIR/Rxvt (compile-time defined: usually
+ \fB/usr/lib/X11/app-defaults/Rxvt\fP) and resources set in \fB~/\&.Xdefaults\fP,
+@@ -408,19 +408,19 @@
+ \fBTrue\fP: scroll to bottom when tty receives output;
+ option(+si)\&.
+ \fBFalse\fP: do not scroll to bottom when tty receives output;
+-option(-si)\&.
++option(\-si)\&.
+ .IP "\fBscrollWithBuffer:\fP \fIboolean\fP" 
+ \fBTrue\fP: scroll with scrollback buffer when tty recieves
+ new lines (and \fBscrollTtyOutput\fP is False);
+ option(+sw)\&.
+ \fBFalse\fP: do not scroll with scrollback buffer when tty
+ recieves new lines;
+-option(-sw)\&.
++option(\-sw)\&.
+ .IP "\fBscrollTtyKeypress:\fP \fIboolean\fP" 
+ \fBTrue\fP: scroll to bottom when a non-special key is pressed\&.
+ Special keys are those which are intercepted by rxvt for special
+ handling and are not passed onto the shell;
+-option(-sk)\&.
++option(\-sk)\&.
+ \fBFalse\fP: do not scroll to bottom when a non-special key is pressed;
+ option(+sk)\&.
+ .IP "\fBsmallfont_key:\fP \fIkeysym\fP" 
+--- a/rclock/rclock.1.in
++++ b/rclock/rclock.1.in
+@@ -2,8 +2,7 @@
+ .TH RCLOCK 1 @RXVT_DATE@ "X Version 11" "X Tools"
+ .UC
+ .SH NAME
+-rclock (ouR CLOCK)
+-\(em clock and appointment reminder for X11
++rclock \- clock and appointment reminder for X11
+ .SH SYNOPSIS
+ .B rclock
+ .RI [ options ]
+@@ -164,16 +163,16 @@
+ # ~/.rclock - My appointment file
+ 
+ # startup functions
+-; xsetroot -solid Black &
++; xsetroot \-solid Black &
+ 
+ # cron functions
+ 
+-10:00; xsetroot -solid Grey25 &
+-14:00; xsetroot -solid Grey75 &
++10:00; xsetroot \-solid Grey25 &
++14:00; xsetroot \-solid Grey75 &
+ 
+ # daily/weekly reminders
+ 
+-08:15 mtwrf *      Good Morning!\\nRead News?; rxvt -e News
++08:15 mtwrf *      Good Morning!\\nRead News?; rxvt \-e News
+ 12:00 mtwrf *      Lunch Time!
+ 17:00 mtwrf *      Go Home
+ 23:00 mtwrf *      Still Here? Go to bed

@@ -1,0 +1,16 @@
+Debian Bug #347344
+rxvt crashes when a parent rxvt window is closed via X window manager
+
+Child rxvt is receiving a SIGHUP - the result of a WM_CLOSE on the parent.
+Other terminal emulators (xterm/rxvt-unicode) ignore this SIGHUP.
+--- a/src/init.c
++++ b/src/init.c
+@@ -1319,7 +1319,7 @@
+ # endif
+ #endif
+ 
+-    signal(SIGHUP, rxvt_Exit_signal);
++    signal(SIGHUP, SIG_IGN);
+ #ifndef __svr4__
+     signal(SIGINT, rxvt_Exit_signal);
+ #endif

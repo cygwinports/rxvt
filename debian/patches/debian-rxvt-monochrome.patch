@@ -1,0 +1,92 @@
+modified the termcap/terminfo entries supplied in the source
+modified rxvt to set TERM=rxvt or rxvt-m
+
+Debian RXVT provides a monochrome differentiated version of both termcap and
+terminfo, and will appropriately set the TERM env var when the X display depth
+matches monochrome.
+--- a/doc/etc/rxvt.termcap
++++ b/doc/etc/rxvt.termcap
+@@ -1,3 +1,28 @@
++# Debian's changes:
++#   Debian has uses two termcap/terminfo entries:
++#	rxvt	for color displays
++#	rxvt-m	for monochrome displays
++rxvt-m|monochrome rxvt terminal emulator (X Window System):\
++	:am:eo:km:ms:ut:xn:xo:\
++	:co#80:it#8:li#24:Co#8:pa#64:\
++	:AB=\E[4%dm:AF=\E[3%dm:AL=\E[%dL:\
++	:DC=\E[%dP:DL=\E[%dM:DO=\E[%dB:IC=\E[%d@:\
++	:K1=\EOw:K2=\EOu:K3=\EOy:K4=\EOq:K5=\EOs:LE=\E[%dD:\
++	:RI=\E[%dC:UP=\E[%dA:\
++	:ae=^O:al=\E[L:as=^N:bl=^G:cd=\E[J:\
++	:ce=\E[K:cl=\E[H\E[2J:cm=\E[%i%d;%dH:cr=^M:\
++	:cs=\E[%i%d;%dr:ct=\E[3g:dc=\E[P:dl=\E[M:do=^J:\
++	:ho=\E[H:i1=\E[?47l\E=\E[?1l:ic=\E[@:\
++	:is=\E[r\E[m\E[2J\E[H\E[?7h\E[?1;3;4;6l\E[4l:\
++	:k0=\E[21~:k1=\E[11~:k2=\E[12~:k3=\E[13~:k4=\E[14~:\
++	:k5=\E[15~:k6=\E[17~:k7=\E[18~:k8=\E[19~:k9=\E[20~:\
++	:kD=\E[3~:kI=\E[2~:kN=\E[6~:kP=\E[5~:kb=^H:kd=\E[B:ke=\E>:\
++	:kl=\E[D:kr=\E[C:ks=\E=:ku=\E[A:le=^H:mb=\E[5m:\
++	:md=\E[1m:me=\E[m:mr=\E[7m:nd=\E[C:op=\E[m:rc=\E8:sc=\E7:\
++	:se=\E[27m:sf=^J:so=\E[7m:sr=\EM:st=\EH:ta=^I:\
++	:te=\E[?47l\E8:ti=\E7\E[?47h:ue=\E[24m:up=\E[A:us=\E[4m:\
++	:vb=\E[?5h\E[?5l:ve=\E[?25h:vi=\E[?25l:vs=\E[?25h:\
++	:@7=\E[8~:kh=\E[7~:
+ rxvt|rxvt terminal emulator (X Window System):\
+ 	:am:eo:km:ms:ut:xn:xo:\
+ 	:co#80:it#8:li#24:Co#8:pa#64:\
+--- a/doc/etc/rxvt.terminfo
++++ b/doc/etc/rxvt.terminfo
+@@ -13,7 +13,13 @@
+ # rxvt is normally configured to look for "xterm" or "xterm-color" as $TERM.
+ # Since rxvt is not really compatible with xterm, it should be configured as
+ # "rxvt-basic" (monochrom) and "rxvt"
+-rxvt-basic|rxvt terminal base (X Window System), 
++#
++# Debian's changes:
++#   Debian has uses two termcap/terminfo entries:
++#	rxvt	for color displays
++#	rxvt-m	for monochrome displays
++#   Debian also prefers ^? for kbs (backspace).
++rxvt-m|monochrome rxvt terminal emulator (X Window System),
+         am, bce, eo, km, msgr, xenl, xon, 
+         cols#80, it#8, lines#24, 
+         acsc=``aaffggjjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~, 
+@@ -29,7 +35,7 @@
+         ind=^J, is1=\E[?47l\E=\E[?1l, 
+         is2=\E[r\E[m\E[2J\E[H\E[?7h\E[?1;3;4;6l\E[4l, 
+         kDC=\E[3$, kEND=\E[8$, kHOM=\E[7$, kLFT=\E[d, kNXT=\E[6$, 
+-        kPRV=\E[5$, kRIT=\E[c, ka1=\EOw, ka3=\EOy, kb2=\EOu, kbs=^H, 
++        kPRV=\E[5$, kRIT=\E[c, ka1=\EOw, ka3=\EOy, kb2=\EOu, kbs=^?, 
+         kc1=\EOq, kc3=\EOs, kcbt=\E[Z, kcub1=\E[D, kcud1=\E[B, 
+         kcuf1=\E[C, kcuu1=\E[A, kdch1=\E[3~, kel=\E[8\^, 
+         kend=\E[8~, kent=\EOM, kf0=\E[21~, kf1=\E[11~, kf10=\E[21~, 
+@@ -52,4 +58,4 @@
+         colors#8, pairs#64, 
+         op=\E[39;49m, setab=\E[%p1%{40}%+%dm, 
+         setaf=\E[%p1%{30}%+%dm,
+-        use=rxvt-basic, 
++        use=rxvt-m, 
+--- a/src/init.c
++++ b/src/init.c
+@@ -749,8 +752,19 @@
+ 				* sizeof(char));
+ 	sprintf(r->h->env_term, "TERM=%s", r->h->rs[Rs_term_name]);
+ 	putenv(r->h->env_term);
+-    } else
++    } else {
++	/* Debian hack: We at Debian prefer to be correct.  Therefore, we
++           use TERM=rxvt on color displays and TERM=rxvt-m (the -m stands
++           for monochrome, see terminfo(5)) on monochrome displays.  For
++           some unknown reason, the upstream maintianers don't recognize
++           the usefulness of this.  Oh well. */
++#ifndef KANJI
++	if (XDEPTH <= 2)
++	    putenv("TERM=" TERMENV "-m");
++	else
++#endif
+ 	putenv("TERM=" TERMENV);
++    }
+ 
+ #ifdef HAVE_UNSETENV
+ /* avoid passing old settings and confusing term size */

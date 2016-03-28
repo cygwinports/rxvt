@@ -1,0 +1,131 @@
+--- origsrc/rxvt-2.7.10/Makefile.in	2003-03-06 20:24:32.000000000 -0600
++++ src/rxvt-2.7.10/Makefile.in	2016-03-28 15:43:06.039225000 -0500
+@@ -25,7 +25,6 @@ MKDIR = $(srcdir)/autoconf/mkinstalldirs
+ #-------------------------------------------------------------------------
+ 
+ all allbin alldoc tags:
+-	@if test x@host_os@ = xcygwin; then (cd W11; ${MAKE} $@ || exit 1); fi
+ 	@for I in ${subdirs}; do (cd $$I; ${MAKE} $@ || exit 1); done
+ 
+ realclean: clean
+@@ -34,7 +33,6 @@ realclean: clean
+ clean:
+ 	$(RMF) *~ config.cache
+ 	$(RMF) -r autom4te.cache
+-	@if test x@host_os@ = xcygwin; then (cd W11; ${MAKE} $@ || exit 1); fi
+ 	@for I in ${subdirs}; do (cd $$I; ${MAKE} $@ || exit 1); done
+ 
+ #
+@@ -70,7 +68,6 @@ installdirs:
+ 	$(MKDIR) $(DESTDIR)$(mandir)
+ 
+ install: installdirs
+-	@if test x@host_os@ = xcygwin; then (cd W11; ${MAKE} $@ || exit 1); fi
+ 	@for I in $(subdirs); do (cd $$I; $(MAKE) DESTDIR=$(DESTDIR) $@ || exit 1); done
+ 
+ Makefiles:
+--- origsrc/rxvt-2.7.10/src/command.c	2016-03-28 15:42:54.497259400 -0500
++++ src/rxvt-2.7.10/src/command.c	2016-03-28 15:42:55.878934800 -0500
+@@ -3019,13 +3019,6 @@ rxvt_main_loop(rxvt_t *r)
+ 
+     h->cmdbuf_ptr = h->cmdbuf_endp = h->cmdbuf_base;
+ 
+-#if defined(__CYGWIN32__)
+-    /* once we know the shell is running, send the screen size.  Again! */
+-    (void)rxvt_cmd_getc(r);	/* wait for something */
+-    h->cmdbuf_ptr--;		/* unget it - reprocess it below */
+-    rxvt_tt_winsize(r->cmd_fd, r->TermWin.ncol, r->TermWin.nrow);
+-#endif
+-
+     refreshnow = 0;
+     for (;;) {
+ 	ch = rxvt_cmd_getc(r);	/* wait for something */
+--- origsrc/rxvt-2.7.10/src/init.h	2001-07-27 01:34:52.000000000 -0500
++++ src/rxvt-2.7.10/src/init.h	2016-03-28 15:42:55.881435100 -0500
+@@ -14,7 +14,7 @@
+ # endif
+ #endif				/* HAVE_XLOCALE */
+ 
+-#if defined(PTYS_ARE_PTMX) && !defined(__CYGWIN32__)
++#if defined(PTYS_ARE_PTMX)
+ # include <sys/resource.h>	/* for struct rlimit */
+ # define _NEW_TTY_CTRL		/* to get proper defines in <termios.h> */
+ #endif
+--- origsrc/rxvt-2.7.10/src/main.c	2016-03-28 15:42:54.621275100 -0500
++++ src/rxvt-2.7.10/src/main.c	2016-03-28 15:42:55.886935800 -0500
+@@ -263,7 +263,6 @@ rxvt_realloc(void *ptr, size_t size)
+ void
+ rxvt_privileges(rxvt_t *r, int mode)
+ {
+-#if ! defined(__CYGWIN32__)
+ # if !defined(HAVE_SETEUID) && defined(HAVE_SETREUID)
+ /* setreuid() is the poor man's setuid(), seteuid() */
+ #  define seteuid(a)	setreuid(-1, (a))
+@@ -301,7 +300,6 @@ rxvt_privileges(rxvt_t *r, int mode)
+ 	break;
+     }
+ # endif
+-#endif
+ }
+ 
+ #ifdef UTMP_SUPPORT
+--- origsrc/rxvt-2.7.10/src/ptytty.c	2002-09-19 02:40:39.000000000 -0500
++++ src/rxvt-2.7.10/src/ptytty.c	2016-03-28 15:42:55.891436400 -0500
+@@ -46,7 +46,7 @@
+ #ifdef HAVE_SYS_IOCTL_H
+ # include <sys/ioctl.h>
+ #endif
+-#if defined(PTYS_ARE_PTMX) && !defined(__CYGWIN32__)
++#if defined(PTYS_ARE_PTMX) && defined(HAVE_SYS_STROPTS_H)
+ # include <sys/stropts.h>      /* for I_PUSH */
+ #endif
+ 
+--- origsrc/rxvt-2.7.10/src/rxvt.h	2003-03-06 19:17:18.000000000 -0600
++++ src/rxvt-2.7.10/src/rxvt.h	2016-03-28 15:42:55.896437100 -0500
+@@ -70,7 +70,7 @@ typedef struct {
+ #  define NO_SETOWNER_TTYDEV
+ # endif
+ #endif
+-#if defined(__CYGWIN32__) || defined(PTYS_ARE_OPENPTY)
++#if defined(PTYS_ARE_OPENPTY)
+ # define NO_SETOWNER_TTYDEV
+ #endif
+ 
+@@ -1000,7 +1000,7 @@ struct rxvt_hidden {
+     Time            selection_request_time;
+     pid_t           cmd_pid;	/* process id of child */
+     gid_t           ttygid;
+-#if (defined(HAVE_SETEUID) || defined(HAVE_SETREUID)) && !defined(__CYGWIN32__)
++#if defined(HAVE_SETEUID) || defined(HAVE_SETREUID)
+     uid_t           euid;
+     gid_t           egid;
+ #endif
+@@ -1167,10 +1167,6 @@ struct rxvt_hidden {
+ # define rxvt_set_window_color(r, idx, color)	(0)
+ #endif
+ 
+-#ifdef __CYGWIN32__
+-# define rxvt_privileged_ttydev(r, action)	(0)
+-#endif
+-
+ #ifdef DEBUG_malloc
+ # include "dmalloc.h"		/* This comes last */
+ #endif
+--- origsrc/rxvt-2.7.10/src/screen.c	2016-03-28 15:42:55.232852800 -0500
++++ src/rxvt-2.7.10/src/screen.c	2016-03-28 15:42:55.901937700 -0500
+@@ -2913,7 +2913,6 @@ rxvt_selection_property(rxvt_t *r, Windo
+ 	    XFree(s);
+ 	if (a != Success)
+ 	    return;
+-#ifndef __CYGWIN32__
+ 	if (atype == r->h->xa[XA_INCR]) {	/* start an INCR transfer */
+ 	    D_SELECT((stderr, "rxvt_selection_property: INCR: starting transfer"));
+ 	    XDeleteProperty(r->Xdisplay, win, prop);
+@@ -2921,7 +2920,6 @@ rxvt_selection_property(rxvt_t *r, Windo
+ 	    reget_time = 1;
+ 	    r->h->selection_wait = Sel_incr;
+ 	}
+-#endif
+     } else if (r->h->selection_wait == Sel_incr) {
+ 	reget_time = 1;
+ 	if (rxvt_selection_paste(r, win, prop, True) == -1) {

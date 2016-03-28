@@ -1,0 +1,27 @@
+--- a/src/main.c
++++ b/src/main.c
+@@ -93,8 +93,10 @@
+     XSynchronize(r->Xdisplay, True);
+     XSetErrorHandler((XErrorHandler) abort);
+ #else
++#if 0
+     XSetErrorHandler((XErrorHandler) rxvt_xerror_handler);
+ #endif
++#endif
+ 
+ #ifdef HAVE_SCROLLBARS
+     if (r->Options & Opt_scrollBar)
+--- a/src/screen.c
++++ b/src/screen.c
+@@ -3640,9 +3640,8 @@
+ 	target_list[3] = (Atom) r->h->xa[XA_COMPOUND_TEXT];
+ #endif
+ 	XChangeProperty(r->Xdisplay, rq->requestor, rq->property, XA_ATOM,
+-			(8 * sizeof(target_list[0])), PropModeReplace,
+-			(unsigned char *)target_list,
+-			(sizeof(target_list) / sizeof(target_list[0])));
++			32, PropModeReplace, (unsigned char *)target_list,
++			(sizeof(target_list) / atom_size));
+ 	ev.property = rq->property;
+     } else if (rq->target == r->h->xa[XA_MULTIPLE]) {
+ 	/* TODO: Handle MULTIPLE */

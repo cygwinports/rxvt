@@ -1,0 +1,65 @@
+Debian Bug #469296
+opens terminal on unspecified display
+
+A patch for rxvt to not use :0 if unset both in rxvt and in rclock
+
+Original issue posted and patch provided by Bernhard R. Link
+
+Applied in rxvt_2.6.4-13
+--- a/src/init.c
++++ b/src/init.c
+@@ -532,14 +532,13 @@
+ /*
+  * Open display, get options/resources and create the window
+  */
+-    if ((rs[Rs_display_name] = getenv("DISPLAY")) == NULL)
+-	rs[Rs_display_name] = ":0";
++    rs[Rs_display_name] = getenv("DISPLAY");
+ 
+     rxvt_get_options(r, r_argc, r_argv);
+     free(r_argv);
+ 
+ #ifdef LOCAL_X_IS_UNIX
+-    if (rs[Rs_display_name][0] == ':') {
++    if (rs[Rs_display_name] && strncmp(rs[Rs_display_name], ":0", 2) == 0) {
+ 	val = rxvt_malloc(5 + STRLEN(rs[Rs_display_name]));
+ 	STRCPY(val, "unix");
+ 	STRCAT(val, rs[Rs_display_name]);
+@@ -550,9 +549,13 @@
+ 
+     if (r->Xdisplay == NULL
+ 	&& (r->Xdisplay = XOpenDisplay(rs[Rs_display_name])) == NULL) {
+-	rxvt_print_error("can't open display %s", rs[Rs_display_name]);
++	rxvt_print_error("can't open display %s",
++			rs[Rs_display_name]?rs[Rs_display_name]:
++			"as no -display option given and DISPLAY not set");
+ 	exit(EXIT_FAILURE);
+     }
++    if (rs[Rs_display_name] == NULL)
++        rs[Rs_display_name] = XDisplayString(r->Xdisplay);
+ 
+     rxvt_extract_resources(r, r->Xdisplay, rs[Rs_name]);
+ 
+--- a/rclock/rclock.c
++++ b/rclock/rclock.c
+@@ -324,9 +324,6 @@
+        CheckMaildir();
+ #endif
+ 
+-   if ((display_name = getenv ("DISPLAY")) == NULL)
+-     display_name = ":0";
+-
+    /* parse the command line */
+    for (i = 1; i < argc; i += 2)
+      {
+@@ -424,7 +421,9 @@
+    Xdisplay = XOpenDisplay (display_name);
+    if (!Xdisplay)
+      {
+-	print_error ("can't open display %s", display_name);
++	print_error ("can't open display %s", display_name?display_name:
++			getenv("DISPLAY")?getenv("DISPLAY"):
++			"as no -d given and DISPLAY not set");
+ 	goto Abort;
+      }
+ 

@@ -1,0 +1,25 @@
+Debian Bug #716576
+[Mayhem] Bug report on rxvt: rclock crashes with exit status 139
+
+rclock reads USER env var without NULL check, causing a segfault.  Found by The Mayhem Team by using env -i to provide an empty environment.
+--- a/rclock/rclock.c
++++ b/rclock/rclock.c
+@@ -312,11 +312,13 @@
+      {
+ 	const char * spool = MAIL_SPOOL;
+ 	char * user = getenv ("USER");	/* assume this works */
+-	val = malloc (strlen (spool) + strlen (user) + 1);
+-	if (val == NULL)
+-	  goto Malloc_Error;
+-	strcpy (val, spool);
+-	strcat (val, user);
++	if (user != NULL) {
++	  val = malloc (strlen (spool) + strlen (user) + 1);
++	  if (val == NULL)
++	    goto Malloc_Error;
++	  strcpy (val, spool);
++	  strcat (val, user);
++	}
+      }
+ #endif
+    mail_file = val;
