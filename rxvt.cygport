@@ -1,7 +1,7 @@
 NAME="rxvt"
 VERSION=2.7.10
 RELEASE=1
-CATEGORY="X11"
+CATEGORY="Shells"
 SUMMARY="Lightweight VT102 terminal emulator"
 DESCRIPTION="rxvt is a colour vt102 terminal emulator intended as an xterm(1)
 replacement for users who do not require features such as Tektronix 4014
